@@ -6,29 +6,182 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
+#define MINIDISP_LENGTH 28
+#define NUMBER(n) [NSNumber numberWithDouble:n]
+
+
 #import "CalculatorViewController.h"
+#import "CalculatorBrain.h"
 
 @interface CalculatorViewController ()
+@property (nonatomic) BOOL userIsInTheMiddleOfEnteringANumber;
+@property (nonatomic) BOOL userEnteredADot;
+@property (nonatomic, strong) CalculatorBrain *brain;
+@property (nonatomic, strong) NSDictionary *testVariableValues;
+@property (weak, nonatomic) IBOutlet UILabel *variablesDisplay;
 
 @end
 
 @implementation CalculatorViewController
 
-- (void)viewDidLoad
+@synthesize display = _display;
+@synthesize miniDisplay = _miniDisplay;
+@synthesize userIsInTheMiddleOfEnteringANumber = _userIsInTheMiddleOfEnteringANumber;
+@synthesize userEnteredADot = _userEnteredADot;
+@synthesize brain = _brain;
+@synthesize testVariableValues = _testVariableValues;
+@synthesize variablesDisplay = _variablesDisplay;
+
+-(CalculatorBrain *) brain
 {
-    [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+    if (!_brain) {
+        _brain = [[CalculatorBrain alloc] init];
+    }
+    
+    return _brain;
 }
 
-- (void)viewDidUnload
+- (IBAction)digitPressed:(UIButton *)sender 
 {
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
+    NSString *digit = sender.currentTitle;
+    if (self.userIsInTheMiddleOfEnteringANumber) {
+        self.display.text = [self.display.text stringByAppendingString:digit];
+    }
+    else {
+        self.display.text = digit;
+        self.userIsInTheMiddleOfEnteringANumber = YES;
+    }
+
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+- (IBAction)enterPressed
 {
-    return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+    [self.brain pushOperand:[self.display.text doubleValue]];
+    self.userIsInTheMiddleOfEnteringANumber = NO;
+    self.userEnteredADot = NO;
+    
+    if ([self.miniDisplay.text length] < MINIDISP_LENGTH)  
+        self.miniDisplay.text = [CalculatorBrain descriptionOfProgram:self.brain.program];
 }
+
+- (IBAction)dotPressed:(UIButton *)sender 
+{
+    if (self.userIsInTheMiddleOfEnteringANumber && !self.userEnteredADot) {
+        self.display.text = [self.display.text stringByAppendingString: sender.currentTitle];
+        self.userEnteredADot = YES; //We introduced a "userEnteredADot" property so that the program knows when the user has used the dot
+        
+        
+    }
+    else if (!self.userIsInTheMiddleOfEnteringANumber) {
+        self.display.text = @"0.";
+        self.userEnteredADot = YES;
+        self.userIsInTheMiddleOfEnteringANumber = YES;
+        
+    }
+
+}
+
+- (IBAction)operationPressed:(UIButton *)sender 
+{
+    if (self.userIsInTheMiddleOfEnteringANumber) {
+        [self enterPressed];
+    }
+    
+    double result = [self.brain performOperation:sender.currentTitle];
+    NSString *resultString = [NSString stringWithFormat:@"%g", result];
+    self.display.text = resultString;
+    
+    if ([self.miniDisplay.text length] < MINIDISP_LENGTH)  {
+        self.miniDisplay.text = [CalculatorBrain descriptionOfProgram:self.brain.program];
+    }
+
+}
+
+- (IBAction)erase 
+{
+    [self.brain eraseStack];
+    self.display.text = @"0";
+    self.userIsInTheMiddleOfEnteringANumber = NO;
+    self.userEnteredADot = NO;
+    self.miniDisplay.text = @"";
+    self.variablesDisplay.text = @"";
+
+}
+
+- (IBAction)backspace 
+{
+    if (self.userIsInTheMiddleOfEnteringANumber) {
+        if ([self.display.text length] > 1) { 
+            // We use this condition to prevent a crash from the app when the length of the string reach 0 and the substringToIndex method gets executed
+            
+            self.display.text = [self.display.text substringToIndex:[self.display.text length] - 1];
+            
+        }
+        else { // I use a special case when the string's length is 1 (it will never be negative that's why I use just "else" ) just to display a 0 and not leaving the display in blank
+            self.display.text = @"0";
+            self.userIsInTheMiddleOfEnteringANumber = NO;
+            self.userEnteredADot = NO;
+            
+        }
+    }
+    else {
+        self.display.text = @"0";
+        self.userIsInTheMiddleOfEnteringANumber = NO;
+        
+    }
+
+}
+
+- (IBAction)variablePressed:(UIButton *)sender 
+{
+    if (self.userIsInTheMiddleOfEnteringANumber) [self enterPressed];
+    
+    self.display.text = sender.currentTitle;
+    
+    [self.brain pushVariable:sender.currentTitle];
+    
+    self.userIsInTheMiddleOfEnteringANumber = NO;
+    
+    if ([self.miniDisplay.text length] < MINIDISP_LENGTH)  
+        self.miniDisplay.text = [CalculatorBrain descriptionOfProgram:self.brain.program];
+}
+
+- (IBAction)testPressed:(UIButton *)sender 
+{
+    double result;
+    self.variablesDisplay.text = @"";
+    
+    if ([@"Test 1" isEqualToString:sender.currentTitle]) {
+        
+        self.testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:NUMBER(2), @"x", NUMBER(-1), @"a", nil];
+        result = [CalculatorBrain runProgram:self.brain.program usingVariables:self.testVariableValues];
+        
+    }
+    
+    else if ([@"Test 2" isEqualToString:sender.currentTitle]) {
+        
+        self.testVariableValues = nil;
+        result = [CalculatorBrain runProgram:self.brain.program usingVariables:self.testVariableValues];
+    }
+    
+    else if ([@"Test 3" isEqualToString:sender.currentTitle]) {
+        self.testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:NUMBER(-1), @"x", NUMBER(-0.9), @"a", NUMBER(0), @"b", NUMBER(-6), @"ø", nil];
+        result = [CalculatorBrain runProgram:self.brain.program usingVariables:self.testVariableValues];
+    }
+    
+    self.display.text = [NSString stringWithFormat:@"%g", result];
+    
+    for (NSString *key in self.testVariableValues) {
+        self.variablesDisplay.text = [self.variablesDisplay.text stringByAppendingString:[NSString stringWithFormat:@"%@ = %@   ",key , [self.testVariableValues objectForKey:key]]];
+    }
+
+}
+
+
+
+
+
+
+
 
 @end
