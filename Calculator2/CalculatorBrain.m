@@ -252,18 +252,14 @@
         stack = [program mutableCopy];
     }
 
-    NSSet *operations = OPERATIONS;
-    NSMutableSet *operationsInProgram = [[NSMutableSet alloc] init];
-    NSMutableSet *variables;
+    NSMutableSet *variables = [[NSMutableSet alloc] init];
     
     if ([program isKindOfClass:[NSArray class]])
         for (id obj in program) 
             if ([obj isKindOfClass:[NSString class]])
-                [operationsInProgram addObject:obj];
+                if (![self isOperation:obj])
+                      [variables addObject:obj];
     
-    variables = [operationsInProgram mutableCopy];    
-    [operationsInProgram intersectSet:operations];
-    [variables minusSet:operationsInProgram];
     
     if ([variables count])
         return variables;
