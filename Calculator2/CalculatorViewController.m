@@ -54,7 +54,7 @@
 
 }
 
-- (IBAction)enterPressed
+- (IBAction)enterPressed 
 {
     [self.brain pushOperand:[self.display.text doubleValue]];
     self.userIsInTheMiddleOfEnteringANumber = NO;
@@ -176,12 +176,5 @@
     }
 
 }
-
-
-
-
-
-
-
 
 @end
