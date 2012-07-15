@@ -247,6 +247,11 @@
 
 + (NSSet *) variablesUsedInProgram:(id)program
 {
+    NSMutableArray *stack;
+    if ([program isKindOfClass:[NSArray class]]) {
+        stack = [program mutableCopy];
+    }
+
     NSSet *operations = OPERATIONS;
     NSMutableSet *operationsInProgram = [[NSMutableSet alloc] init];
     NSMutableSet *variables;
