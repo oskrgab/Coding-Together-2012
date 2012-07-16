@@ -273,4 +273,8 @@
     [self.programStack removeAllObjects];
 }
 
+-(void) removeLastObjectOfStack
+{
+    if ([self.programStack count]) [self.programStack removeLastObject];
+}
 @end

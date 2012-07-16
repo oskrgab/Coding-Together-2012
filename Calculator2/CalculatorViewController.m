@@ -60,8 +60,7 @@
     self.userIsInTheMiddleOfEnteringANumber = NO;
     self.userEnteredADot = NO;
     
-    if ([self.miniDisplay.text length] < MINIDISP_LENGTH)  
-        self.miniDisplay.text = [CalculatorBrain descriptionOfProgram:self.brain.program];
+    [self updateUI];
 }
 
 - (IBAction)dotPressed:(UIButton *)sender 
@@ -91,10 +90,7 @@
     NSString *resultString = [NSString stringWithFormat:@"%g", result];
     self.display.text = resultString;
     
-    if ([self.miniDisplay.text length] < MINIDISP_LENGTH)  {
-        self.miniDisplay.text = [CalculatorBrain descriptionOfProgram:self.brain.program];
-    }
-
+    [self updateUI];
 }
 
 - (IBAction)erase 
@@ -175,6 +171,24 @@
         self.variablesDisplay.text = [self.variablesDisplay.text stringByAppendingString:[NSString stringWithFormat:@"%@ = %@   ",key , [self.testVariableValues objectForKey:key]]];
     }
 
+}
+
+- (IBAction)undoPressed 
+{
+    [self backspace];
+    if (!self.userIsInTheMiddleOfEnteringANumber) {
+        [self.brain removeLastObjectOfStack];
+        double result = [CalculatorBrain runProgram:self.brain.program];
+        self.display.text = [NSString stringWithFormat:@"%g", result];
+        [self updateUI];
+    }
+    
+}
+
+-(void) updateUI
+{
+    if ([self.miniDisplay.text length] < MINIDISP_LENGTH)  
+        self.miniDisplay.text = [CalculatorBrain descriptionOfProgram:self.brain.program];
 }
 
 @end

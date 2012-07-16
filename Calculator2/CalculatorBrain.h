@@ -14,6 +14,7 @@
 -(void) pushOperand: (double) operand;
 -(double) performOperation: (NSString *) operation;
 -(void) eraseStack;
+-(void) removeLastObjectOfStack;
 
 @property (readonly) id program; // I don't want to introduce another class so we use a property with id
 
