@@ -64,9 +64,9 @@
     
     NSString *description = @"";
     
-    while ([stack count] > 0) {
+    while ([stack count]) {
         description = [description stringByAppendingString:[self descriptionOfTopOfStack:stack]];
-        if ([stack count] > 0)
+        if ([stack count])
             description = [description stringByAppendingString:@","];
     }
     

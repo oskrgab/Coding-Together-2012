@@ -109,7 +109,8 @@
     if (self.userIsInTheMiddleOfEnteringANumber) {
         if ([self.display.text length] > 1) { 
             // We use this condition to prevent a crash from the app when the length of the string reach 0 and the substringToIndex method gets executed
-            
+            if ([[self.display.text substringFromIndex:[self.display.text length] - 1] isEqualToString:@"."])
+                self.userEnteredADot = NO;
             self.display.text = [self.display.text substringToIndex:[self.display.text length] - 1];
             
         }
@@ -138,8 +139,7 @@
     
     self.userIsInTheMiddleOfEnteringANumber = NO;
     
-    if ([self.miniDisplay.text length] < MINIDISP_LENGTH)  
-        self.miniDisplay.text = [CalculatorBrain descriptionOfProgram:self.brain.program];
+    [self updateUI];
 }
 
 - (IBAction)testPressed:(UIButton *)sender 
