@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#define MINIDISP_LENGTH 28
+#define MINIDISP_LENGTH 35
 #define NUMBER(n) [NSNumber numberWithDouble:n]
 
 
@@ -167,8 +167,16 @@
     
     self.display.text = [NSString stringWithFormat:@"%g", result];
     
-    for (NSString *key in self.testVariableValues) {
-        self.variablesDisplay.text = [self.variablesDisplay.text stringByAppendingString:[NSString stringWithFormat:@"%@ = %@   ",key , [self.testVariableValues objectForKey:key]]];
+    NSSet *variables = [CalculatorBrain variablesUsedInProgram:self.brain.program];
+    NSNumber *varNumber;
+    
+    for (NSString *key in variables) {
+        if ([self.testVariableValues objectForKey:key]) 
+            varNumber = [self.testVariableValues objectForKey:key];
+        else 
+            varNumber = NUMBER(0);
+        
+        self.variablesDisplay.text = [self.variablesDisplay.text stringByAppendingFormat:@"%@ = %@   ",key , varNumber];
     }
 
 }
