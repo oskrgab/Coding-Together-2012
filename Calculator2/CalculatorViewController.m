@@ -18,7 +18,6 @@
 @property (nonatomic) BOOL userEnteredADot;
 @property (nonatomic, strong) CalculatorBrain *brain;
 @property (nonatomic, strong) NSDictionary *testVariableValues;
-@property (weak, nonatomic) IBOutlet UILabel *variablesDisplay;
 
 @end
 
@@ -30,7 +29,6 @@
 @synthesize userEnteredADot = _userEnteredADot;
 @synthesize brain = _brain;
 @synthesize testVariableValues = _testVariableValues;
-@synthesize variablesDisplay = _variablesDisplay;
 
 -(CalculatorBrain *) brain
 {
@@ -100,7 +98,6 @@
     self.userIsInTheMiddleOfEnteringANumber = NO;
     self.userEnteredADot = NO;
     self.miniDisplay.text = @"";
-    self.variablesDisplay.text = @"";
 
 }
 
@@ -142,44 +139,6 @@
     [self updateUI];
 }
 
-- (IBAction)testPressed:(UIButton *)sender 
-{
-    double result;
-    self.variablesDisplay.text = @"";
-    
-    if ([@"Test 1" isEqualToString:sender.currentTitle]) {
-        
-        self.testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:NUMBER(2), @"x", NUMBER(-1), @"a", nil];
-        result = [CalculatorBrain runProgram:self.brain.program usingVariables:self.testVariableValues];
-        
-    }
-    
-    else if ([@"Test 2" isEqualToString:sender.currentTitle]) {
-        
-        self.testVariableValues = nil;
-        result = [CalculatorBrain runProgram:self.brain.program usingVariables:self.testVariableValues];
-    }
-    
-    else if ([@"Test 3" isEqualToString:sender.currentTitle]) {
-        self.testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:NUMBER(-1), @"x", NUMBER(-0.9), @"a", NUMBER(0), @"b", NUMBER(-6), @"ø", nil];
-        result = [CalculatorBrain runProgram:self.brain.program usingVariables:self.testVariableValues];
-    }
-    
-    self.display.text = [NSString stringWithFormat:@"%g", result];
-    
-    NSSet *variables = [CalculatorBrain variablesUsedInProgram:self.brain.program];
-    NSNumber *varNumber;
-    
-    for (NSString *key in variables) {
-        if ([self.testVariableValues objectForKey:key]) 
-            varNumber = [self.testVariableValues objectForKey:key];
-        else 
-            varNumber = NUMBER(0);
-        
-        self.variablesDisplay.text = [self.variablesDisplay.text stringByAppendingFormat:@"%@ = %@   ",key , varNumber];
-    }
-
-}
 
 - (IBAction)undoPressed 
 {

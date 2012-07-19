@@ -67,7 +67,7 @@
     while ([stack count]) {
         description = [description stringByAppendingString:[self descriptionOfTopOfStack:stack]];
         if ([stack count])
-            description = [description stringByAppendingString:@","];
+            description = [description stringByAppendingString:@", "];
     }
     
     return description;
